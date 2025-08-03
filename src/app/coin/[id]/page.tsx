@@ -57,7 +57,7 @@ export default function CoinDetailsPage() {
           setError("Failed to fetch coin data.");
         }
       } catch (err) {
-        setError("An error occurred while fetching coin data.");
+        setError("An error occurred while fetching data.");
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,3 @@
-
 export const debounce = <F extends (...args: any[]) => any>(fn: F, delay: number) => {
   let timeoutId: ReturnType<typeof setTimeout> | null;
 

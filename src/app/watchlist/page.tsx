@@ -45,8 +45,8 @@ export default function WatchlistPage() {
         } else {
           setError('Failed to fetch coin data.');
         }
-      } catch (err) {
-        setError('An error occurred while fetching watchlist data.');
+     } catch (err) {
+        setError("An error occurred while fetching data.");
       } finally {
         setLoading(false);
       }
