@@ -72,21 +72,18 @@ export default function HomePage() {
   }, [orderBy]);
 
   // Debounced search logic to filter the full list of coins
-  const debouncedSearch = useMemo(() => {
-    return debounce((term: string) => {
-      if (term === '') {
-        setFilteredCoins(allCoins);
-      } else {
-        const lowercasedTerm = term.toLowerCase();
-        const results = allCoins.filter(coin =>
-          coin.name.toLowerCase().includes(lowercasedTerm) ||
-          coin.symbol.toLowerCase().includes(lowercasedTerm)
-        );
-        setFilteredCoins(results);
-      }
-      setCurrentPage(1); // Reset to page 1 on new search
-    }, 300);
-  }, [allCoins]);
+  const debouncedSearch = useMemo(() =>
+  debounce((term: string) => {
+    if (term === '') {
+      setFilteredCoins(allCoins);
+    } else {
+      const filtered = allCoins.filter(coin =>
+        coin.name.toLowerCase().includes(term.toLowerCase())
+      );
+      setFilteredCoins(filtered);
+    }
+  }, 300)
+, [allCoins]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
