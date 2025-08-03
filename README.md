@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CryptoWatch
 
-## Getting Started
+**Live Cryptocurrency Data & Analytics**
 
-First, run the development server:
+This project is a simple but sleek dashboard that provides real-time cryptocurrency data from the CoinGecko API. It allows users to browse, search, and track their favorite cryptocurrencies in a clean, responsive interface.
+
+---
+
+## 📑 Table of Contents
+
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+- [API](#api)
+- [Deployment](#deployment)
+
+---
+
+## 🚀 Features
+
+- **Live Markets List**: A paginated table of the top cryptocurrencies, showing real-time price, 24h change, market cap, and volume.
+- **Search & Filtering**: Users can search for cryptocurrencies by name or symbol and filter the list based on market cap, volume, or price.
+- **Interactive Charts**: Clicking on a coin opens a detailed view with a responsive price chart and selectable time ranges (24h, 7d, 30d, 90d).
+- **Watchlist**: A persistent, client-side watchlist that allows users to save and track their favorite coins.
+- **Responsive Design**: The layout is optimized for a seamless experience on both desktop and mobile devices.
+- **Loading States**: Features elegant loading skeletons and clear empty/error states for a smooth user experience.
+
+---
+
+## 🛠 Technologies Used
+
+- **Framework**: [Next.js (App Router)](https://nextjs.org/)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Charting**: Recharts
+- **Data Fetching**: Axios
+- **Deployment**: Vercel
+
+---
+
+## 🧑‍💻 Getting Started
+
+Follow these steps to get the project up and running on your local machine.
+
+### ✅ Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### 🔧 1. Clone the repository
+
+```bash
+git clone https://github.com/rajmohanmr/CryptoWatch
+cd CryptoWatch
+```
+
+### 📦 2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 🔐 3. Set up the CoinGecko API Key
+
+1. Create a free account on the [CoinGecko Developer Dashboard](https://coingecko.com/en/api/documentation).
+2. Generate a **Free Demo API Key**.
+3. In the project root, create a file named `.env.local` and add:
+
+```env
+NEXT_PUBLIC_COINGECKO_API_KEY=YOUR_API_KEY_HERE
+```
+
+_(This file is included in `.gitignore` to keep your key secure.)_
+
+### ▶️ 4. Run the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📡 API
 
-## Learn More
+This project uses the [CoinGecko API v3](https://www.coingecko.com/en/api/documentation). Key endpoints include:
 
-To learn more about Next.js, take a look at the following resources:
+- `/coins/markets` – for the main markets list and global stats.
+- `/coins/[id]` – for detailed coin information.
+- `/coins/[id]/market_chart` – for historical price data for charts.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+A simple caching layer is implemented to avoid hitting rate limits on the free plan.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## ☁️ Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is easily deployable using [Vercel](https://vercel.com/), the official platform for Next.js apps.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+

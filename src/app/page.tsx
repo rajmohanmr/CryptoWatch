@@ -1,103 +1,175 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useEffect, useState, useMemo } from 'react';
+import Header from '@/components/Header';
+import StatCard from '@/components/StatCard';
+import CoinTable from '@/components/CoinTable';
+import { getTopCoins } from '@/lib/api/coingecko';
+import { debounce } from '@/lib/utils/debounce';
+import { TableSkeleton, CardSkeleton } from '@/components/SkeletonLoader';
+import Pagination from '@/components/Pagination';
+
+// Define the shape of a single coin object
+interface Coin {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  total_volume: number;
+  price_change_percentage_24h: number;
+  market_cap_rank: number;
+}
+
+// Define the shape of the stat card props
+interface StatCardProps {
+  title: string;
+  value: string;
+  change: string;
+  icon: 'marketCap' | 'volume' | 'dominance' | 'activeCoins';
+  changeType: 'positive' | 'negative';
+}
+
+export default function HomePage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [allCoins, setAllCoins] = useState<Coin[]>([]);
+  const [filteredCoins, setFilteredCoins] = useState<Coin[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 50;
+  const [orderBy, setOrderBy] = useState<'market_cap' | 'volume' | 'price'>('market_cap');
+
+  const mockStats: StatCardProps[] = [
+    { title: "Market Cap", value: "$2.1T", change: "+5.2%", icon: "marketCap", changeType: "positive" },
+    { title: "24h Volume", value: "$89.2B", change: "-2.1%", icon: "volume", changeType: "negative" },
+    { title: "Bitcoin Dominance", value: "42.8%", change: "+0.3%", icon: "dominance", changeType: "positive" },
+    { title: "Active Coins", value: "2,847", change: "Live tracking", icon: "activeCoins", changeType: "positive" },
+  ];
+
+  // This effect fetches all 150 coins once on component mount
+  useEffect(() => {
+    const fetchAllCoins = async () => {
+      try {
+        setLoading(true);
+        const orderParam = `${orderBy}_desc`;
+        // Fetch all 3 pages (50 * 3 = 150 coins)
+        const data = await getTopCoins(1, 150, orderParam);
+        if (data) {
+          setAllCoins(data);
+          setFilteredCoins(data);
+        } else {
+          setError("Failed to fetch coins.");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllCoins();
+  }, [orderBy]); // Re-fetch all coins only when the sort order changes
+
+  // Debounced search logic to filter the full list of coins
+  const debouncedSearch = useMemo(() => {
+    return debounce((term: string) => {
+      if (term === '') {
+        setFilteredCoins(allCoins);
+      } else {
+        const lowercasedTerm = term.toLowerCase();
+        const results = allCoins.filter(coin =>
+          coin.name.toLowerCase().includes(lowercasedTerm) ||
+          coin.symbol.toLowerCase().includes(lowercasedTerm)
+        );
+        setFilteredCoins(results);
+      }
+      setCurrentPage(1); // Reset to page 1 on new search
+    }, 300);
+  }, [allCoins]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    debouncedSearch(term);
+  };
+  
+  const handleNextPage = () => setCurrentPage(prev => prev + 1);
+  const handlePrevPage = () => setCurrentPage(prev => prev - 1);
+  const handleOrderBy = (type: 'market_cap' | 'volume' | 'price') => {
+    setOrderBy(type);
+  };
+
+  // Memoized data for the current page to prevent re-slicing on every render
+  const paginatedCoins = useMemo(() => {
+    const startIndex = (currentPage - 1) * perPage;
+    return filteredCoins.slice(startIndex, startIndex + perPage);
+  }, [filteredCoins, currentPage, perPage]);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex flex-col">
+      <Header onSearchChange={handleSearchChange} searchTerm={searchTerm} />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Top Stat Cards Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        {loading ? (
+          [...Array(4)].map((_, index) => <CardSkeleton key={index} />)
+        ) : (
+          mockStats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))
+        )}
+      </div>
+
+      {/* Top Cryptocurrencies Table Section */}
+      <section>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 space-y-2 md:space-y-0">
+          <h2 className="text-xl font-semibold text-yellow-400">Top Cryptocurrencies</h2>
+          <div className="flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-2 mt-2 md:mt-0">
+            <button
+              onClick={() => handleOrderBy('market_cap')}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+                ${orderBy === 'market_cap' ? 'bg-yellow-400 text-gray-900' : 'bg-stone-800 text-gray-400 hover:bg-gray-700'}`}
+            >
+              Market Cap
+            </button>
+            <button
+              onClick={() => handleOrderBy('volume')}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+                ${orderBy === 'volume' ? 'bg-yellow-400 text-gray-900' : 'bg-stone-800 text-gray-400 hover:bg-gray-700'}`}
+            >
+              Volume
+            </button>
+            <button
+              onClick={() => handleOrderBy('price')}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+                ${orderBy === 'price' ? 'bg-yellow-400 text-gray-900' : 'bg-stone-800 text-gray-400 hover:bg-gray-700'}`}
+            >
+              Price
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        {loading ? (
+          <TableSkeleton />
+        ) : error ? (
+          <p className="text-red-400">{error}</p>
+        ) : filteredCoins.length > 0 ? (
+          <>
+            <CoinTable coins={paginatedCoins} />
+            <Pagination
+              currentPage={currentPage}
+              onNextPage={handleNextPage}
+              onPrevPage={handlePrevPage}
+              hasNextPage={currentPage * perPage < filteredCoins.length}
+            />
+          </>
+        ) : (
+          <div className="bg-stone-800 p-8 rounded-lg text-center">
+            <p className="text-gray-400">No cryptocurrencies found matching your search.</p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
