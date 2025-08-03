@@ -57,6 +57,7 @@ export default function CoinDetailsPage() {
           setError("Failed to fetch coin data.");
         }
       } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         setError("An error occurred while fetching data.");
       } finally {
         setLoading(false);
@@ -81,31 +82,33 @@ export default function CoinDetailsPage() {
   const priceChangeColor = coin.market_data.price_change_percentage_24h > 0 ? 'text-green-400' : 'text-red-400';
 
   return (
-    <div className="p-6">
-      <div className="flex items-center space-x-4 mb-6">
-        <Image src={coin.image.large} alt={coin.name} width={64} height={64} className="rounded-full" />
-        <div>
-          <h1 className="text-4xl font-bold flex items-center">
-            {coin.name} <span className="text-gray-400 text-lg uppercase ml-3">({coin.symbol})</span>
-          </h1>
-          <p className="text-yellow-400 text-5xl font-bold mt-2">
-            ${coin.market_data.current_price.usd.toLocaleString()}
-            <span className={`text-xl ml-4 ${priceChangeColor}`}>
-              {coin.market_data.price_change_percentage_24h.toFixed(2)}%
-            </span>
-          </p>
+    <div className="p-4">
+      <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-4">
+        <div className="flex items-center space-x-2">
+          <Image src={coin.image.large} alt={coin.name} width={48} height={48} className="rounded-full" />
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold flex items-center">
+              {coin.name} <span className="text-gray-400 text-sm uppercase ml-2">({coin.symbol})</span>
+            </h1>
+            <p className="text-yellow-400 text-3xl font-bold mt-1">
+              ${coin.market_data.current_price.usd.toLocaleString()}
+              <span className={`text-sm ml-2 ${priceChangeColor}`}>
+                {coin.market_data.price_change_percentage_24h.toFixed(2)}%
+              </span>
+            </p>
+          </div>
         </div>
-        <div className="ml-auto">
+        <div className="md:ml-auto md:self-center">
           <WatchlistStar coinId={id} />
         </div>
       </div>
 
-      <div className="flex space-x-2 mb-6">
+      <div className="flex flex-wrap space-x-1 mb-4">
         {['1', '7', '30','90'].map((range) => (
           <button
             key={range}
             onClick={() => setChartRange(range)}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors
               ${chartRange === range ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
           >
             {range}d
@@ -121,30 +124,30 @@ export default function CoinDetailsPage() {
         </div>
       )}
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-stone-800 p-6 rounded-lg">
-          <h3 className="text-gray-400 mb-2">Market Cap</h3>
-          <p className="text-2xl- text-yellow-400  font-bold">${formatNumber(coin.market_data.market_cap.usd)}</p>
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-stone-800 p-4 rounded-lg">
+          <h3 className="text-gray-400 mb-1">Market Cap</h3>
+          <p className="text-xl text-yellow-400 font-bold">${formatNumber(coin.market_data.market_cap.usd)}</p>
         </div>
-        <div className="bg-stone-800 p-6 rounded-lg">
-          <h3 className="text-gray-400 mb-2">24h Volume</h3>
-          <p className="text-2xl- text-yellow-400  font-bold">${formatNumber(coin.market_data.total_volume.usd)}</p>
+        <div className="bg-stone-800 p-4 rounded-lg">
+          <h3 className="text-gray-400 mb-1">24h Volume</h3>
+          <p className="text-xl text-yellow-400 font-bold">${formatNumber(coin.market_data.total_volume.usd)}</p>
         </div>
-        <div className="bg-stone-800 p-6 rounded-lg">
-          <h3 className="text-gray-400 mb-2">Circulating Supply</h3>
-          <p className="text-2xl- text-yellow-400  font-bold">{formatNumber(coin.market_data.circulating_supply)}</p>
+        <div className="bg-stone-800 p-4 rounded-lg">
+          <h3 className="text-gray-400 mb-1">Circulating Supply</h3>
+          <p className="text-xl text-yellow-400 font-bold">{formatNumber(coin.market_data.circulating_supply)}</p>
         </div>
-        <div className="bg-stone-800 p-6 rounded-lg">
-          <h3 className="text-gray-400 mb-2">24h High</h3>
-          <p className="text-2xl- text-yellow-400  font-bold">${coin.market_data.high_24h.usd.toLocaleString()}</p>
+        <div className="bg-stone-800 p-4 rounded-lg">
+          <h3 className="text-gray-400 mb-1">24h High</h3>
+          <p className="text-xl text-yellow-400 font-bold">${coin.market_data.high_24h.usd.toLocaleString()}</p>
         </div>
-        <div className="bg-stone-800 p-6 rounded-lg">
-          <h3 className="text-gray-400 mb-2">24h Low</h3>
-          <p className="text-2xl- text-yellow-400  font-bold">${coin.market_data.low_24h.usd.toLocaleString()}</p>
+        <div className="bg-stone-800 p-4 rounded-lg">
+          <h3 className="text-gray-400 mb-1">24h Low</h3>
+          <p className="text-xl text-yellow-400 font-bold">${coin.market_data.low_24h.usd.toLocaleString()}</p>
         </div>
-        <div className="bg-stone-800 p-6 rounded-lg">
-          <h3 className="text-gray-400 mb-2">Market Cap Rank</h3>
-          <p className="text-2xl- text-yellow-400  font-bold">#{coin.market_data.market_cap_rank}</p>
+        <div className="bg-stone-800 p-4 rounded-lg">
+          <h3 className="text-gray-400 mb-1">Market Cap Rank</h3>
+          <p className="text-xl text-yellow-400 font-bold">#{coin.market_data.market_cap_rank}</p>
         </div>
       </div>
     </div>
