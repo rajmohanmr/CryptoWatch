@@ -1,3 +1,4 @@
+// app/page.tsx
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -49,12 +50,12 @@ export default function HomePage() {
     { title: "Active Coins", value: "2,847", change: "Live tracking", icon: "activeCoins", changeType: "positive" },
   ];
 
-  // This effect fetches all 150 coins once on component mount
- useEffect(() => {
-    const fetchCoins = async () => {
+  // This effect fetches all 150 coins once on component mount or sort order change
+  useEffect(() => {
+    const fetchAllCoins = async () => {
       try {
         setLoading(true);
-        const orderParam = `${orderBy}_desc`; 
+        const orderParam = `${orderBy}_desc`;
         const data = await getTopCoins(1, 150, orderParam);
         if (data) {
           setAllCoins(data);
@@ -62,28 +63,33 @@ export default function HomePage() {
         } else {
           setError("Failed to fetch coins.");
         }
-     } catch (err) {
+      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         setError("An error occurred while fetching data.");
       } finally {
         setLoading(false);
       }
     };
-    fetchCoins();
+    fetchAllCoins();
   }, [orderBy]);
 
   // Debounced search logic to filter the full list of coins
   const debouncedSearch = useMemo(() =>
-  debounce((term: string) => {
-    if (term === '') {
-      setFilteredCoins(allCoins);
-    } else {
-      const filtered = allCoins.filter(coin =>
-        coin.name.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredCoins(filtered);
-    }
-  }, 300)
-, [allCoins]);
+    // Corrected: removed the explicit 'term: string' type
+    // Corrected: added the page reset logic here
+    debounce((term) => {
+      if (term === '') {
+        setFilteredCoins(allCoins);
+      } else {
+        const filtered = allCoins.filter(coin =>
+          coin.name.toLowerCase().includes(term.toLowerCase()) ||
+          coin.symbol.toLowerCase().includes(term.toLowerCase())
+        );
+        setFilteredCoins(filtered);
+      }
+      setCurrentPage(1); // Reset to page 1 on search
+    }, 300)
+  , [allCoins]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
@@ -95,6 +101,7 @@ export default function HomePage() {
   const handlePrevPage = () => setCurrentPage(prev => prev - 1);
   const handleOrderBy = (type: 'market_cap' | 'volume' | 'price') => {
     setOrderBy(type);
+    setCurrentPage(1); // Reset to page 1 on sort change
   };
 
   // Memoized data for the current page to prevent re-slicing on every render
@@ -103,20 +110,25 @@ export default function HomePage() {
     return filteredCoins.slice(startIndex, startIndex + perPage);
   }, [filteredCoins, currentPage, perPage]);
 
+  // Conditionally render the stat cards
+  const showStatCards = searchTerm === '';
+
   return (
     <div className="flex flex-col">
       <Header onSearchChange={handleSearchChange} searchTerm={searchTerm} />
 
       {/* Top Stat Cards Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        {loading ? (
-          [...Array(4)].map((_, index) => <CardSkeleton key={index} />)
-        ) : (
-          mockStats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
-          ))
-        )}
-      </div>
+      {showStatCards && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          {loading ? (
+            [...Array(4)].map((_, index) => <CardSkeleton key={index} />)
+          ) : (
+            mockStats.map((stat, index) => (
+              <StatCard key={index} {...stat} />
+            ))
+          )}
+        </div>
+      )}
 
       {/* Top Cryptocurrencies Table Section */}
       <section>

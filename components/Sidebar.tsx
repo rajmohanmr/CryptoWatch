@@ -9,9 +9,8 @@ const Sidebar = () => {
   const pathname = usePathname();
 
   const navItems = [
-    { name: 'Dashboard', href: '/', icon: <ChartLine/> },
-    { name: 'Watchlist', href: '/watchlist', icon: <UserStar/> },
-    
+    { name: 'Dashboard', href: '/', icon: <ChartLine size={20} /> },
+    { name: 'Watchlist', href: '/watchlist', icon: <UserStar size={20} /> },
   ];
 
   return (
@@ -29,7 +28,7 @@ const Sidebar = () => {
               pathname === item.href ? 'bg-gray-800 text-yellow-400' : 'text-gray-400 hover:bg-gray-800'
             }`}
           >
-            <span className="text-xl">{item.icon}</span>
+            {item.icon}
             <span className="text-sm font-semibold">{item.name}</span>
           </Link>
         ))}
