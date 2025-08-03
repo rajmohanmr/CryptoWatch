@@ -14,7 +14,9 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     return (
       <div className="bg-gray-800 p-2 rounded-lg border border-gray-700">
         <p className="text-sm text-yellow-400 font-bold">${payload[0].value.toFixed(2)}</p>
-        <p className="text-xs text-gray-400">{new Date(label).toLocaleDateString()}</p>
+        {label && (
+  <p className="text-xs text-gray-400">{new Date(label).toLocaleDateString()}</p>
+)}
       </div>
     );
   }

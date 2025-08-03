@@ -62,7 +62,7 @@ export default function HomePage() {
         } else {
           setError("Failed to fetch coins.");
         }
-      } catch (err) {
+     } catch (err) {
         setError("An error occurred while fetching data.");
       } finally {
         setLoading(false);
