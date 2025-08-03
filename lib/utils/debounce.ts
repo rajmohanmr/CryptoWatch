@@ -1,9 +1,9 @@
 type Callback = (...args: any[]) => void;
 
-export const debounce = (fn: Callback, delay: number) => {
+export const debounce = <T extends any[]>(fn: (...args: T) => void, delay: number) => {
   let timeoutId: ReturnType<typeof setTimeout> | null;
 
-  return (...args: any[]) => {
+  return (...args: T) => {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }

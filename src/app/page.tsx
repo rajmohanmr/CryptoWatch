@@ -50,12 +50,11 @@ export default function HomePage() {
   ];
 
   // This effect fetches all 150 coins once on component mount
-  useEffect(() => {
-    const fetchAllCoins = async () => {
+ useEffect(() => {
+    const fetchCoins = async () => {
       try {
         setLoading(true);
-        const orderParam = `${orderBy}_desc`;
-        // Fetch all 3 pages (50 * 3 = 150 coins)
+        const orderParam = `${orderBy}_desc`; 
         const data = await getTopCoins(1, 150, orderParam);
         if (data) {
           setAllCoins(data);
@@ -63,14 +62,14 @@ export default function HomePage() {
         } else {
           setError("Failed to fetch coins.");
         }
-      } catch (err) {
+      } catch (_err) { // Change 'err' to '_err'
         setError("An error occurred while fetching data.");
       } finally {
         setLoading(false);
       }
     };
-    fetchAllCoins();
-  }, [orderBy]); // Re-fetch all coins only when the sort order changes
+    fetchCoins();
+  }, [orderBy]);
 
   // Debounced search logic to filter the full list of coins
   const debouncedSearch = useMemo(() => {
